@@ -19,7 +19,7 @@ jobs:
         run: npm run lint
       - name: Typecheck
         run: npx tsc --noEmit
-      - name: Business-rule tests (Q3 constraints + 30-day simulation)
+      - name: Business-rule tests (constraints + 30-day simulation)
         run: npm test
       - name: Production build
         run: npm run build

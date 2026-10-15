@@ -3,7 +3,7 @@
 > This README is the complete project documentation: what was built, how it works, which constraints it enforces and how it was tested.
 
 Temperature tracking and administration app for a 74-bed virus quarantine & treatment facility.
-Prepared by **Chaitanya Shinde** for the FactWise Technical Product Manager assessment (October 2026).
+Product prototype by **Chaitanya Shinde** (October 2026).
 
 | | |
 |---|---|
@@ -17,9 +17,9 @@ Prepared by **Chaitanya Shinde** for the FactWise Technical Product Manager asse
 
 ## 1. Problem → solution
 
-The head doctor described five operational failures. Each maps to a specific mechanism in the app:
+A paper-journal process causes five operational failures. Each maps to a specific mechanism in the app:
 
-| Problem from the brief | Mechanism in QuaranTrack | Where |
+| Operational problem | Mechanism in QuaranTrack | Where |
 |---|---|---|
 | Nobody knows which patients had their temperature taken; some measured twice, some never | Nurse **Pending / Recorded** lists, "X patients pending today" banner, one reading per patient per day | `/nurse`, `canLogTemp` |
 | Nobody knows which patients the doctor visited | Doctor **Ready / Awaiting / Visited** lists, one visit per day | `/doctor`, `canVisit` |
@@ -261,7 +261,7 @@ flowchart LR
 
 | Cohort | Count | Purpose |
 |---|---|---|
-| Active patients | 74 (all rooms) | Facility at full occupancy, as in the brief |
+| Active patients | 74 (all rooms) | Facility at full occupancy |
 | — already approved, waiting on admin | 7 | Admin queue + "overdue" badge |
 | — eligible, not yet approved | 19 | Doctor's eligible tab + admin "remind doctor" |
 | — one fever-free day short | 14 | Becomes eligible after one more normal reading / End day |
@@ -281,8 +281,8 @@ flowchart LR
 | Role switcher instead of login | Reviewer can walk the whole flow in a minute | Auth with role claims; `dispatch` already takes `role` |
 | Pure engine + rules | Every rule testable in isolation; UI and enforcement can't drift | Same code moves server-side unchanged |
 | Missing day breaks the cure streak | "3 full days without fever" needs evidence for each day | Configurable if doctors decide otherwise |
-| Fever ≥ 38.0 °C, critical ≥ 40.5 °C | Brief didn't define them; standard clinical thresholds; single setting | Admin-editable settings |
-| Duplicate check on name + age | No patient ID in the brief | National ID / hospital MRN |
+| Fever ≥ 38.0 °C, critical ≥ 40.5 °C | Not specified by the facility; standard clinical thresholds; single setting | Admin-editable settings |
+| Duplicate check on name + age | No patient ID in the current process | National ID / hospital MRN |
 
 ## 10. Quality-of-life features
 
@@ -290,7 +290,7 @@ flowchart LR
 |---|---|---|
 | Dark mode (sun/moon toggle, remembered per browser, follows OS by default) | Top bar | Night shifts on wards |
 | Beds badge coloured green / amber (≥ 90%) / red (full) | Top bar, every screen | Occupancy visible to every role at a glance |
-| Export report (CSV, one row per patient-day: temperature, fever, visit, note) | Head Doctor dashboard | Daily / weekly reports from Q1; opens in Excel or Sheets |
+| Export report (CSV, one row per patient-day: temperature, fever, visit, note) | Head Doctor dashboard | Daily / weekly reporting; opens in Excel or Sheets |
 | After saving a reading the cursor jumps to the next pending patient | Nurse | Fast rounds, keyboard only: type, Enter, type, Enter |
 | Patient search by name, ID or room | Nurse | Find a patient instantly |
 | Correction history on the patient page | Patient detail | Audit trail visible, nothing deleted |
@@ -301,7 +301,7 @@ flowchart LR
 
 - Data is per browser — two reviewers don't see each other's actions.
 - No authentication; any visitor can open any role's screen (the engine still enforces each screen's role).
-- Not built (nice-to-have per brief): PDF report formatting, notifications/reminders at fixed times, Head Doctor undo of a recorded death, offline mode.
+- Not built yet (nice-to-have): PDF report formatting, notifications/reminders at fixed times, Head Doctor undo of a recorded death, offline mode.
 
 ---
 

@@ -1,4 +1,4 @@
-// Rigorous checks of every business rule, organised by the Q3 constraint they enforce.
+// Rigorous checks of every business rule, organised by the constraint they enforce.
 // Data-driven (it.each over boundary values) + a randomised 30-day simulation that
 // asserts invariants after every single action.
 import { describe, expect, it } from "vitest";
