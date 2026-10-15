@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Business-rule tests (Q3 constraints + 30-day simulation)
+        run: npm test
+      - name: Production build
+        run: npm run build
+# Deployment (CD) is handled by Vercel's GitHub integration:
+# every push to main deploys to production, every PR gets a preview URL.

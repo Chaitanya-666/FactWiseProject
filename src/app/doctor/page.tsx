@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
 import { useStore } from "@/lib/store";
+import type { Action } from "@/lib/engine";
 import { canApproveDischarge, canVisit, CRITICAL_C, CURE_DAYS, isActive, isEligibleForDischarge, normalStreak, Patient, todayStatus } from "@/lib/rules";
 import { Badge, Button, Card, Empty, PageHeader, PatientLink, Stat, Tabs, Temp } from "@/components/ui";
 
@@ -12,7 +13,7 @@ export default function DoctorPage() {
   const [view, setView] = useState<View>("ready");
   const active = patients.filter(isActive);
 
-  const byTemp = (a: Patient, b: Patient) => (b.temps[today]?.value ?? 0) - (a.temps[today]?.value ?? 0);
+  const byTemp = (a: Patient, b: Patient) => Number(!!b.flag) - Number(!!a.flag) || (b.temps[today]?.value ?? 0) - (a.temps[today]?.value ?? 0);
   const groups: Record<View, Patient[]> = {
     ready: active.filter((p) => todayStatus(p, today) === "ready_for_doctor").sort(byTemp), // hottest first
     pending: active.filter((p) => todayStatus(p, today) === "temp_pending").sort((a, b) => a.room! - b.room!),
@@ -50,17 +51,17 @@ export default function DoctorPage() {
 }
 
 function Row({ p }: { p: Patient }) {
-  const { today, recordVisit, approveDischarge, markDeceased } = useStore();
+  const { today, run } = useStore();
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const streak = normalStreak(p, today);
   const visitBlock = canVisit(p, today);
   const approveBlock = canApproveDischarge(p, today);
-  const run = (e: string | null) => { setErr(e); if (!e) setOpen(false); };
+  const exec = (a: Action) => { const e = run("doctor", a); setErr(e?.error ?? null); if (!e) setOpen(false); };
 
   return (
-    <div className="py-3">
+    <div className="py-3" data-testid={`doctor-row-${p.id}`}>
       <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
         <div className="w-14 font-mono text-sm text-slate-600">Rm {p.room}</div>
         <div className="min-w-44 flex-1">
@@ -74,18 +75,20 @@ function Row({ p }: { p: Patient }) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {p.status === "discharge_approved" && <Badge tone="violet">Discharge approved</Badge>}
+          {p.flag && <Badge tone="red">Needs review</Badge>}
           {p.visits[today] && <Badge tone="green">Visited</Badge>}
-          {!p.visits[today] && <Button disabled={!!visitBlock} title={visitBlock ?? ""} onClick={() => setOpen(!open)}>{visitBlock && !p.temps[today] ? "Awaiting temp" : "Record visit"}</Button>}
-          {p.status === "admitted" && <Button variant="success" disabled={!!approveBlock} title={approveBlock ?? "Send to admin discharge queue"} onClick={() => run(approveDischarge(p.id))}>Approve discharge</Button>}
-          <Button variant="danger" onClick={() => confirm(`Record ${p.name} as deceased? This frees the room and cannot be undone.`) && run(markDeceased(p.id))}>Deceased</Button>
+          {!p.visits[today] && <Button disabled={!!visitBlock} title={visitBlock ?? ""} onClick={() => setOpen(!open)}>{!p.temps[today] ? "Temperature not recorded yet" : "Mark visited"}</Button>}
+          {p.status === "admitted" && <Button variant="success" disabled={!!approveBlock} title={approveBlock ?? "Send to admin discharge queue"} onClick={() => exec({ type: "approveDischarge", id: p.id })}>Approve discharge</Button>}
+          <Button variant="danger" onClick={() => confirm(`Record ${p.name} as deceased? This frees the room and cannot be undone.`) && exec({ type: "markDeceased", id: p.id })}>Deceased</Button>
         </div>
       </div>
       {open && (
-        <form onSubmit={(e) => { e.preventDefault(); run(recordVisit(p.id, note)); }} className="mt-3 flex gap-2 pl-14">
+        <form onSubmit={(e) => { e.preventDefault(); exec({ type: "recordVisit", id: p.id, note }); }} className="mt-3 flex gap-2 pl-14">
           <input autoFocus value={note} onChange={(e) => setNote(e.target.value)} placeholder="Treatment / observation notes" className="flex-1 rounded-lg border border-slate-300 px-3 py-1.5 text-sm outline-none focus:border-teal-600" />
           <Button type="submit">Save visit</Button>
         </form>
       )}
+      {p.flag && <div className="mt-2 pl-14 text-sm text-red-700">{p.flag}</div>}
       {err && <div className="mt-2 pl-14"><Badge tone="red">{err}</Badge></div>}
     </div>
   );

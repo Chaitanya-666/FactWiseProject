@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Activity, CalendarDays, ClipboardList, LayoutDashboard, RotateCcw, Stethoscope, Thermometer, SkipForward } from "lucide-react";
 import { useStore } from "@/lib/store";
-import { CAPACITY, fmtDay, isActive } from "@/lib/rules";
+import { CAPACITY, fmtDay, occupiesRoom, Role } from "@/lib/rules";
 
 const ROLES = [
   { href: "/nurse", label: "Nurse", icon: Thermometer },
@@ -15,8 +15,9 @@ const ROLES = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
-  const { today, patients, endDay, reset } = useStore();
-  const occupied = patients.filter(isActive).length;
+  const { today, patients, run, reset } = useStore();
+  const occupied = patients.filter(occupiesRoom).length;
+  const role: Role = path.startsWith("/nurse") ? "nurse" : path.startsWith("/doctor") ? "doctor" : path.startsWith("/admin") ? "admin" : "head";
 
   return (
     <div className="min-h-screen">
@@ -39,10 +40,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="flex items-center gap-1 rounded-lg bg-slate-100 px-2.5 py-1 text-slate-700">
               <CalendarDays className="h-4 w-4" /> {fmtDay(today)}
             </span>
-            <button onClick={() => confirm("Close today and move to the next day? Missed readings/visits will be logged.") && endDay()} className="flex items-center gap-1 rounded-lg border border-slate-300 px-2.5 py-1 text-slate-700 hover:bg-slate-50" title="Demo: simulate the next day">
+            <button onClick={() => confirm("Close today and move to the next day? Missed readings/visits will be logged.") && run(role, { type: "endDay" })} className="flex items-center gap-1 rounded-lg border border-slate-300 px-2.5 py-1 text-slate-700 hover:bg-slate-50" title="Demo: simulate the next day">
               <SkipForward className="h-4 w-4" /> End day
             </button>
-            <button onClick={() => confirm("Reset all demo data?") && reset()} className="flex items-center gap-1 rounded-lg px-2 py-1 text-slate-500 hover:bg-slate-100" title="Reset demo data">
+            <button onClick={() => confirm("Reset all demo data?") && reset()} className="flex items-center gap-1 rounded-lg px-2 py-1 text-slate-500 hover:bg-slate-100" title="Reset demo data" aria-label="Reset demo data">
               <RotateCcw className="h-4 w-4" />
             </button>
           </div>

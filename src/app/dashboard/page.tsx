@@ -1,7 +1,7 @@
 "use client";
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useStore } from "@/lib/store";
-import { addDays, BENCHMARK_MORTALITY, CAPACITY, daysBetween, fmtDay, isActive, isEligibleForDischarge, outcomeStats, todayStatus } from "@/lib/rules";
+import { addDays, BENCHMARK_MORTALITY, CAPACITY, daysBetween, fmtDay, isActive, isEligibleForDischarge, occupiesRoom, outcomeStats, todayStatus } from "@/lib/rules";
 import { Badge, Card, PageHeader, Stat } from "@/components/ui";
 
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
@@ -12,7 +12,7 @@ export default function Dashboard() {
   const active = patients.filter(isActive);
   const tempsDone = active.filter((p) => todayStatus(p, today) !== "temp_pending").length;
   const visitsDone = active.filter((p) => todayStatus(p, today) === "visited").length;
-  const over = s.mortality > BENCHMARK_MORTALITY;
+  const over = s.overBenchmark;
   const discharged = patients.filter((p) => p.status === "discharged");
   const avgStay = discharged.length ? discharged.reduce((n, p) => n + daysBetween(p.admittedOn, p.outcomeOn!), 0) / discharged.length : 0;
 
@@ -28,11 +28,11 @@ export default function Dashboard() {
   return (
     <>
       <PageHeader title="Quality dashboard" subtitle="Treatment outcomes against the 85% success benchmark, plus today's process compliance." />
-      {over && <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><b>Alert:</b> mortality rate {pct(s.mortality)} is above the expected {pct(BENCHMARK_MORTALITY)}. Review treatment protocols.</div>}
+      {over && <div data-testid="mortality-alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><b>Alert:</b> mortality rate {pct(s.mortality)} is above the expected {pct(BENCHMARK_MORTALITY)}. Review treatment protocols.</div>}
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Success rate" value={pct(s.success)} tone={over ? "red" : "green"} sub={`Benchmark 85% · ${s.cured} cured`} />
         <Stat label="Mortality rate" value={pct(s.mortality)} tone={over ? "red" : "green"} sub={`${s.deceased} of ${s.closed} closed cases`} />
-        <Stat label="Occupancy" value={`${active.length}/${CAPACITY}`} tone="blue" sub={`${active.filter((p) => isEligibleForDischarge(p, today) || p.status === "discharge_approved").length} ready to leave`} />
+        <Stat label="Occupancy" value={`${patients.filter(occupiesRoom).length}/${CAPACITY}`} tone="blue" sub={`${active.filter((p) => isEligibleForDischarge(p, today) || p.status === "discharge_approved").length} ready to leave`} />
         <Stat label="Avg stay (cured)" value={`${avgStay.toFixed(1)} d`} tone="violet" />
       </div>
       <div className="grid gap-5 lg:grid-cols-3">

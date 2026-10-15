@@ -44,6 +44,13 @@ export default function PatientPage() {
           </ResponsiveContainer>
         </div>
       </Card>
+      {p.corrections?.length ? (
+        <Card title="Corrections (readings are never deleted)" className="mb-5">
+          <ul className="text-sm text-slate-700">
+            {p.corrections.map((c, i) => <li key={i} className="py-1">{fmtDay(c.day)}: {c.from.toFixed(1)} → {c.to.toFixed(1)} °C by {c.by} — “{c.reason}”</li>)}
+          </ul>
+        </Card>
+      ) : null}
       <Card title="Daily journal">
         <table className="w-full text-sm">
           <thead className="text-left text-xs uppercase text-slate-500"><tr><th className="py-2">Day</th><th>Temperature</th><th>Doctor visit</th></tr></thead>
