@@ -1,10 +1,26 @@
 "use client";
 import { CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { useStore } from "@/lib/store";
-import { addDays, BENCHMARK_MORTALITY, CAPACITY, daysBetween, fmtDay, isActive, isEligibleForDischarge, occupiesRoom, outcomeStats, todayStatus } from "@/lib/rules";
-import { Badge, Card, PageHeader, Stat } from "@/components/ui";
+import { addDays, BENCHMARK_MORTALITY, CAPACITY, daysBetween, FEVER_C, fmtDay, Patient, isActive, isEligibleForDischarge, occupiesRoom, outcomeStats, todayStatus } from "@/lib/rules";
+import { Download } from "lucide-react";
+import { Badge, Button, Card, PageHeader, Stat } from "@/components/ui";
 
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
+
+// Daily report: one row per patient-day, opens in Excel / Sheets.
+function exportCsv(patients: Patient[], today: string) {
+  const q = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+  const rows = [["Patient ID", "Name", "Age", "Room", "Status", "Day", "Temperature °C", "Fever", "Doctor visit", "Visit note"]];
+  for (const p of patients) {
+    const days = Object.keys({ ...p.temps, ...p.visits }).sort();
+    for (const d of days.length ? days : [""])
+      rows.push([p.id, p.name, String(p.age), String(p.room ?? ""), p.status, d, p.temps[d]?.value.toFixed(1) ?? "", p.temps[d] ? (p.temps[d].value >= FEVER_C ? "yes" : "no") : "", p.visits[d] ? "yes" : "", p.visits[d]?.note ?? ""]);
+  }
+  const blob = new Blob(["\uFEFF" + rows.map((r) => r.map(q).join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: `quarantrack-report-${today}.csv` });
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 
 export default function Dashboard() {
   const { patients, today, events } = useStore();
@@ -27,7 +43,9 @@ export default function Dashboard() {
 
   return (
     <>
-      <PageHeader title="Quality dashboard" subtitle="Treatment outcomes against the 85% success benchmark, plus today's process compliance." />
+      <PageHeader title="Quality dashboard" subtitle="Treatment outcomes against the 85% success benchmark, plus today's process compliance.">
+        <Button variant="secondary" onClick={() => exportCsv(patients, today)} className="flex items-center gap-1.5"><Download className="h-4 w-4" /> Export report (CSV)</Button>
+      </PageHeader>
       {over && <div data-testid="mortality-alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"><b>Alert:</b> mortality rate {pct(s.mortality)} is above the expected {pct(BENCHMARK_MORTALITY)}. Review treatment protocols.</div>}
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Success rate" value={pct(s.success)} tone={over ? "red" : "green"} sub={`Benchmark 85% · ${s.cured} cured`} />

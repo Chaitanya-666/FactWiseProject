@@ -9,3 +9,45 @@ body {
   color: #0f172a;
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
+
+/* Dark theme: remap the light palette used across the screens */
+.dark body { background: #0b1220; color: #e2e8f0; }
+.dark .bg-white, .dark .bg-white\/95 { background-color: #111a2e; }
+.dark .bg-slate-50 { background-color: #0f172a; }
+.dark .bg-slate-100 { background-color: #1e293b; }
+.dark .bg-slate-200 { background-color: #334155; }
+.dark .text-slate-900, .dark .text-slate-800 { color: #f1f5f9; }
+.dark .text-slate-700 { color: #cbd5e1; }
+.dark .text-slate-600, .dark .text-slate-500 { color: #94a3b8; }
+.dark .border-slate-100, .dark .border-slate-200 { border-color: #1e293b; }
+.dark .border-slate-300 { border-color: #334155; }
+.dark .divide-slate-100 > * + * { border-color: #1e293b; }
+.dark .bg-teal-50 { background-color: #134e4a; }
+.dark .text-teal-800, .dark .text-teal-700 { color: #5eead4; }
+.dark .bg-amber-50 { background-color: #3a2a0a; }
+.dark .bg-red-50 { background-color: #3b1212; }
+.dark .bg-emerald-50 { background-color: #0b3324; }
+.dark .text-amber-900, .dark .text-amber-800 { color: #fcd34d; }
+.dark .text-red-800, .dark .text-red-700 { color: #fca5a5; }
+.dark .text-emerald-900, .dark .text-emerald-800, .dark .text-emerald-700 { color: #6ee7b7; }
+.dark .border-amber-200 { border-color: #78350f; }
+.dark .border-red-200, .dark .border-red-300 { border-color: #7f1d1d; }
+.dark .border-emerald-200 { border-color: #065f46; }
+.dark .bg-red-100 { background-color: #4c1414; }
+.dark .bg-amber-100 { background-color: #4a3410; }
+.dark .bg-emerald-100 { background-color: #0d3b2b; }
+.dark .bg-sky-100 { background-color: #0c3249; }
+.dark .bg-violet-100 { background-color: #2e1f52; }
+.dark .text-sky-800 { color: #7dd3fc; }
+.dark .text-violet-800 { color: #c4b5fd; }
+.dark .bg-teal-100 { background-color: #134e4a; }
+.dark .text-teal-900 { color: #ccfbf1; }
+.dark .bg-violet-200 { background-color: #4c1d95; }
+.dark .text-violet-900 { color: #ede9fe; }
+.dark .bg-slate-300 { background-color: #475569; }
+.dark input { background-color: transparent; color: inherit; }
+.dark .hover\:bg-slate-100:hover, .dark .hover\:bg-slate-50:hover { background-color: #1e293b; }
+.dark .disabled\:bg-slate-300:disabled { background-color: #334155; }
+.dark .recharts-cartesian-grid line { stroke: #1e293b; }
+.dark .recharts-text { fill: #94a3b8; }
+.dark button.bg-white { background-color: #1e293b !important; color: #e2e8f0; }

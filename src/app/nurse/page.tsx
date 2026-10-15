@@ -84,6 +84,8 @@ function Row({ p }: { p: Patient }) {
     if (err?.needsConfirm) err = confirm(err.error) ? send(true) : { ok: false, error: "Not saved — please re-measure." };
     if (err) return setMsg({ text: err.error, tone: "red" });
     setVal(""); setReason(""); setEditing(false);
+    // keep rounds fast: jump straight to the next patient's input
+    if (!editing) setTimeout(() => document.querySelector<HTMLInputElement>('input[aria-label^="Temperature for"]')?.focus(), 0);
     setMsg(v >= CRITICAL_C ? { text: "Critical — doctor alerted", tone: "red" } : v >= FEVER_C ? { text: "Fever recorded", tone: "amber" } : { text: "Saved", tone: "green" });
   };
 
