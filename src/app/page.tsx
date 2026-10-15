@@ -1,103 +1,40 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ClipboardList, LayoutDashboard, Stethoscope, Thermometer } from "lucide-react";
+
+const ROLES = [
+  { href: "/nurse", icon: Thermometer, title: "Nurse", text: "See who still needs today's temperature and record it. Duplicates are blocked." },
+  { href: "/doctor", icon: Stethoscope, title: "Doctor", text: "Visit only patients whose temperature is in. Approve discharge after 3 fever-free days." },
+  { href: "/admin", icon: ClipboardList, title: "Admin", text: "Confirm approved discharges, free rooms, admit new patients (max 74)." },
+  { href: "/dashboard", icon: LayoutDashboard, title: "Head Doctor", text: "Track mortality vs the 15% benchmark and daily process compliance." },
+];
+
+const FLOW = ["Admin admits patient to a free room", "Nurse records one temperature per day", "Doctor visits once the reading is in", "3 consecutive fever-free days → eligible", "Doctor approves discharge (or records death)", "Admin confirms discharge → room freed", "Head doctor tracks outcomes vs 85% benchmark"];
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+    <div className="mx-auto max-w-5xl">
+      <h1 className="text-3xl font-semibold text-slate-900">QuaranTrack</h1>
+      <p className="mt-2 max-w-2xl text-slate-600">
+        Temperature tracking and administration for a 74-bed quarantine &amp; treatment facility. Pick a role to start. This prototype has no login: switch roles from the top bar.
+      </p>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        {ROLES.map(({ href, icon: Icon, title, text }) => (
+          <Link key={href} href={href} className="group rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-teal-400 hover:shadow">
+            <Icon className="h-6 w-6 text-teal-700" />
+            <div className="mt-3 font-semibold text-slate-900 group-hover:text-teal-800">{title} →</div>
+            <p className="mt-1 text-sm text-slate-600">{text}</p>
+          </Link>
+        ))}
+      </div>
+      <h2 className="mt-10 font-semibold text-slate-900">Daily workflow</h2>
+      <ol className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        {FLOW.map((s, i) => (
+          <li key={i} className="rounded-lg border border-slate-200 bg-white p-3 text-sm text-slate-700"><span className="mr-2 font-mono text-teal-700">{i + 1}</span>{s}</li>
+        ))}
+      </ol>
+      <div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+        <b>Demo tips:</b> data is pre-seeded and saved in your browser. Use <b>End day</b> in the top bar to simulate the next day (missed readings are logged), and the reset icon to restore demo data.
+      </div>
     </div>
   );
 }
